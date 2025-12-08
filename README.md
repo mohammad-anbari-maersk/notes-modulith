@@ -39,9 +39,8 @@ The easiest way to run dependencies is with Docker (PostgreSQL + RabbitMQ).
 # Technologies
 Implemented with Spring Boot 4.0.0 and Java 25.
 
-<img src="https://img.shields.io/badge/Java-%23ED8B00.svg?logo=openjdk&logoColor=white" alt="Java">
-<img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?logo=springboot&logoColor=fff" alt="Spring Boot">
-
+[![Java](https://img.shields.io/badge/Java-%23ED8B00.svg?logo=openjdk&logoColor=white)](#)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?logo=springboot&logoColor=fff)](#)
 
 Key libraries/modules:
 - Spring Modulith 2.0.0 (core, JDBC, actuator)
