@@ -1,6 +1,8 @@
 # Notes Modulith
 Modular notes application showcasing Spring Modulith. It exposes REST APIs to manage users and their notes, and emits domain events when notes are created. Persistence is via PostgreSQL; asynchronous integration uses RabbitMQ.
 
+You can visit [my Medium post](https://senoritadeveloper.medium.com/modular-monolith-with-spring-boot-spring-modulith-6687c234daab) to read the details about the implementation.
+
 ## Features
 • Users: create and list users.
 
@@ -37,7 +39,9 @@ The easiest way to run dependencies is with Docker (PostgreSQL + RabbitMQ).
 # Technologies
 Implemented with Spring Boot 4.0.0 and Java 25.
 
-<img src="https://img.shields.io/badge/Language-Java_25-orange.svg" alt="Java 25">
+<img src="https://img.shields.io/badge/Java-%23ED8B00.svg?logo=openjdk&logoColor=white" alt="Java">
+<img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?logo=springboot&logoColor=fff" alt="Spring Boot">
+
 
 Key libraries/modules:
 - Spring Modulith 2.0.0 (core, JDBC, actuator)
