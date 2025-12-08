@@ -1,0 +1,43 @@
+<configuration debug="true" scan="true" scanPeriod="10 minutes">
+
+    <property name="LOG_FILE" value="logs/notes-modulith.log"/>
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"/>
+    <property name="LOG_PATTERN" value="%green(notes-modulith) - %cyan(%date [%thread] %-5level %logger{36}) - %message : %magenta([TRXN_ID=%X{tx_id}] [USERNAME=%X{username}]%n)"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/notes-modulith-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    -->
+
+    <logger name="dev.nils.notes_modulith" level="DEBUG"/>
+    <logger name="org.springframework.boot" level="INFO"/>
+    <logger name="org.springframework.modulith" level="DEBUG"/>
+    <logger name="org.springframework.amqp" level="INFO"/>
+    <!-- General Hibernate info -->
+    <logger name="org.hibernate" level="INFO"/>
+    <!-- Hibernate SQL -->
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <!-- Hibernate SQL parameters (bind values) -->
+    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <!-- <appender-ref ref="FILE"/> -->
+    </root>
+</configuration>

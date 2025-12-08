@@ -1,0 +1,48 @@
+### Base configuration
+### Default app port: 8081, base context-path: /api
+
+### Health check (Actuator)
+GET http://localhost:8081/api/actuator/health
+
+### Users
+### Create user
+POST http://localhost:8081/api/users
+Content-Type: application/json
+
+{
+  "email": "richard@testmail.com",
+  "fullName": "Richard"
+}
+
+### List users
+GET http://localhost:8081/api/users
+
+### Notes
+### Create note (publishes NoteCreatedEvent)
+POST http://localhost:8081/api/notes
+Content-Type: application/json
+
+{
+  "title": "First",
+  "content": "Hello Modulith",
+  "userId": 12
+}
+
+### List notes
+GET http://localhost:8081/api/notes
+
+### Get note by id
+GET http://localhost:8081/api/notes/1
+
+### Update note
+PUT http://localhost:8081/api/notes/1
+Content-Type: application/json
+
+{
+  "title": "Updated",
+  "content": "Updated content"
+}
+
+### Delete note
+DELETE http://localhost:8081/api/notes/1
+
