@@ -3,7 +3,6 @@ package dev.nils.notes_modulith.users.domain;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import dev.nils.notes_modulith.users.exception.UserException;
 import dev.nils.notes_modulith.users.mapper.UserMapper;
 import dev.nils.notes_modulith.users.web.UserCreateRequest;
 import dev.nils.notes_modulith.users.UserDto;
@@ -84,21 +83,19 @@ class UserServiceUnitTest {
         when(userRepository.findById(10L)).thenReturn(Optional.of(user));
         when(userMapper.toDto(user)).thenReturn(dto);
 
-        UserDto result = userService.findById(10L);
+        Optional<UserDto> result = userService.findById(10L);
 
-        assertThat(result).isEqualTo(dto);
+        assertThat(result).contains(dto);
         verify(userRepository).findById(10L);
         verify(userMapper).toDto(user);
     }
 
     @Test
-    @DisplayName("findById() should throw UserException when user not found")
-    void findById_shouldThrowExceptionWhenMissing() {
+    @DisplayName("findById() should return empty when user not found")
+    void findById_shouldReturnEmptyWhenMissing() {
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.findById(999L))
-                .isInstanceOf(UserException.class)
-                .hasMessageContaining("User record cannot be found for id value");
+        assertThat(userService.findById(999L)).isEmpty();
 
         verify(userRepository).findById(999L);
         verifyNoInteractions(userMapper);

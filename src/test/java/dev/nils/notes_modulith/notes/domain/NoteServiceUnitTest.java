@@ -109,7 +109,7 @@ class NoteServiceUnitTest {
 
         NoteDto dto = new NoteDto(123L, Instant.now(), Instant.now(), "New title", "New content", userId);
 
-        when(userApi.getById(userId)).thenReturn(userDto);
+        when(userApi.findById(userId)).thenReturn(Optional.of(userDto));
         when(noteMapper.fromCreateRequest(req, userId)).thenReturn(mapped);
         when(noteRepository.save(mapped)).thenReturn(saved);
         when(noteMapper.toDto(saved)).thenReturn(dto);
@@ -117,7 +117,7 @@ class NoteServiceUnitTest {
         NoteDto result = noteService.create(req);
 
         assertThat(result).isEqualTo(dto);
-        verify(userApi).getById(userId);
+        verify(userApi).findById(userId);
         verify(noteMapper).fromCreateRequest(req, userId);
         verify(noteRepository).save(mapped);
         verify(noteMapper).toDto(saved);
@@ -136,16 +136,40 @@ class NoteServiceUnitTest {
         Long userId = 77L;
         NoteCreateRequest req = new NoteCreateRequest(userId, "T", "C");
 
-        when(userApi.getById(userId)).thenThrow(new RuntimeException("not found"));
+        when(userApi.findById(userId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> noteService.create(req))
                 .isInstanceOf(NoteException.class)
                 .hasMessageContaining("Note creation failed, user not found with id value");
 
-        verify(userApi).getById(userId);
+        verify(userApi).findById(userId);
         verifyNoInteractions(noteMapper);
         verifyNoInteractions(noteRepository);
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    @DisplayName("create() should propagate unexpected user lookup failures unchanged")
+    void create_shouldPropagateUnexpectedUserLookupFailure() {
+        NoteCreateRequest req = new NoteCreateRequest(7L, "T", "C");
+        IllegalStateException failure = new IllegalStateException("database down");
+
+        when(userApi.findById(7L)).thenThrow(failure);
+
+        assertThatThrownBy(() -> noteService.create(req)).isSameAs(failure);
+        verifyNoInteractions(noteRepository, eventPublisher);
+    }
+
+    @Test
+    @DisplayName("update() should throw NoteException when note not found")
+    void update_shouldThrowWhenMissing() {
+        when(noteRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> noteService.update(999L, new NoteUpdateRequest("t", "c")))
+                .isInstanceOf(NoteException.class)
+                .hasMessageContaining("Note record cannot be found for id value");
+
+        verify(noteRepository, never()).save(any());
     }
 
     @Test

@@ -1,10 +1,8 @@
 package dev.nils.notes_modulith.users.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.nils.notes_modulith.TestContainersConfiguration;
-import dev.nils.notes_modulith.users.exception.UserException;
 import dev.nils.notes_modulith.users.web.UserCreateRequest;
 import dev.nils.notes_modulith.users.UserDto;
 import java.util.List;
@@ -44,18 +42,16 @@ class UserServiceIntegrationTest {
         Long janeId =
                 userRepository.findByEmail("jane.doe@example.com").orElseThrow().getId();
 
-        UserDto dto = userService.findById(janeId);
+        UserDto dto = userService.findById(janeId).orElseThrow();
 
         assertThat(dto.email()).isEqualTo("jane.doe@example.com");
         assertThat(dto.fullName()).isEqualTo("Jane Doe");
     }
 
     @Test
-    @DisplayName("findById() should throw UserException when ID does not exist")
-    void findById_shouldThrowExceptionWhenNotExists() {
-        assertThatThrownBy(() -> userService.findById(9999L))
-                .isInstanceOf(UserException.class)
-                .hasMessageContaining("User record cannot be found for id value");
+    @DisplayName("findById() should return empty when ID does not exist")
+    void findById_shouldReturnEmptyWhenNotExists() {
+        assertThat(userService.findById(9999L)).isEmpty();
     }
 
     @Test

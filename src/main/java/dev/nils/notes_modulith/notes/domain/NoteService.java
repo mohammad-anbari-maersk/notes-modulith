@@ -37,21 +37,15 @@ public class NoteService {
 
     @Transactional(readOnly = true)
     public NoteDto findById(Long id) {
-        return noteRepository.findById(id).map(noteMapper::toDto).orElseThrow(() -> {
-            log.error("[NOTE_SERVICE] [FAILED] [NOTE_NOT_FOUND_WITH_ID] [ID={}]", id);
-            return new NoteException(NoteErrorCode.NOTE_NOT_FOUND_WITH_ID, id);
-        });
+        return noteMapper.toDto(getExisting(id));
     }
 
     @Transactional
     public NoteDto create(NoteCreateRequest createRequest) {
-        UserDto user;
-        try {
-            user = userApi.getById(createRequest.userId());
-        } catch (Exception e) {
-            log.error("[NOTES_SERVICE][CREATE][FAILED]: User not found with id={}", createRequest.userId());
-            throw new NoteException(NoteErrorCode.NOTE_CREATION_FAILED_USER_NOT_FOUND_WITH_ID, createRequest.userId());
-        }
+        UserDto user = userApi.findById(createRequest.userId()).orElseThrow(() -> {
+            log.warn("[NOTES_SERVICE][CREATE][FAILED]: User not found with id={}", createRequest.userId());
+            return new NoteException(NoteErrorCode.NOTE_CREATION_FAILED_USER_NOT_FOUND_WITH_ID, createRequest.userId());
+        });
 
         Note note = noteMapper.fromCreateRequest(createRequest, user.id());
         Note savedNote = noteRepository.save(note);
@@ -65,7 +59,7 @@ public class NoteService {
 
     @Transactional
     public NoteDto update(Long id, NoteUpdateRequest req) {
-        Note existing = noteRepository.findById(id).orElseThrow();
+        Note existing = getExisting(id);
         noteMapper.applyUpdate(req, existing);
 
         return noteMapper.toDto(noteRepository.save(existing));
@@ -74,5 +68,12 @@ public class NoteService {
     @Transactional
     public void delete(Long id) {
         noteRepository.deleteById(id);
+    }
+
+    private Note getExisting(Long id) {
+        return noteRepository.findById(id).orElseThrow(() -> {
+            log.warn("[NOTE_SERVICE] [FAILED] [NOTE_NOT_FOUND_WITH_ID] [ID={}]", id);
+            return new NoteException(NoteErrorCode.NOTE_NOT_FOUND_WITH_ID, id);
+        });
     }
 }

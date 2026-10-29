@@ -1,6 +1,7 @@
 package dev.nils.notes_modulith.notes.web;
 
 import dev.nils.notes_modulith.notes.domain.NoteService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,12 +26,12 @@ public class NoteRestController {
     }
 
     @PostMapping
-    public NoteDto create(@RequestBody NoteCreateRequest req) {
+    public NoteDto create(@Valid @RequestBody NoteCreateRequest req) {
         return noteService.create(req);
     }
 
     @PutMapping("/{id}")
-    public NoteDto update(@PathVariable Long id, @RequestBody NoteUpdateRequest req) {
+    public NoteDto update(@PathVariable Long id, @Valid @RequestBody NoteUpdateRequest req) {
         return noteService.update(id, req);
     }
 
