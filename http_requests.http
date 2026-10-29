@@ -25,7 +25,7 @@ Content-Type: application/json
 {
   "title": "First",
   "content": "Hello Modulith",
-  "userId": 12
+  "userId": 1
 }
 
 ### List notes

@@ -62,7 +62,8 @@ public class NoteService {
         Note existing = getExisting(id);
         noteMapper.applyUpdate(req, existing);
 
-        return noteMapper.toDto(noteRepository.save(existing));
+        // Flush so @PreUpdate sets updatedAt before the response is mapped.
+        return noteMapper.toDto(noteRepository.saveAndFlush(existing));
     }
 
     @Transactional

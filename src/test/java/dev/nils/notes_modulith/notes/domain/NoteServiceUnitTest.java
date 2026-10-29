@@ -169,7 +169,7 @@ class NoteServiceUnitTest {
                 .isInstanceOf(NoteException.class)
                 .hasMessageContaining("Note record cannot be found for id value");
 
-        verify(noteRepository, never()).save(any());
+        verify(noteRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -185,8 +185,7 @@ class NoteServiceUnitTest {
         NoteDto dto = new NoteDto(id, Instant.now(), Instant.now(), "updated", "updated content", 3L);
 
         when(noteRepository.findById(id)).thenReturn(Optional.of(existing));
-        // applyUpdate is void – just verify it's called
-        when(noteRepository.save(existing)).thenReturn(saved);
+        when(noteRepository.saveAndFlush(existing)).thenReturn(saved);
         when(noteMapper.toDto(saved)).thenReturn(dto);
 
         NoteDto result = noteService.update(id, req);
@@ -194,7 +193,7 @@ class NoteServiceUnitTest {
         assertThat(result).isEqualTo(dto);
         verify(noteRepository).findById(id);
         verify(noteMapper).applyUpdate(req, existing);
-        verify(noteRepository).save(existing);
+        verify(noteRepository).saveAndFlush(existing);
         verify(noteMapper).toDto(saved);
     }
 

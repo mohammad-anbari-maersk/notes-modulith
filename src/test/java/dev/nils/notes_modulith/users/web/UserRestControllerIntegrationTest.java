@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import dev.nils.notes_modulith.TestContainersConfiguration;
 import dev.nils.notes_modulith.users.UserDto;
+import dev.nils.notes_modulith.users.domain.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ class UserRestControllerIntegrationTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    UserRepository userRepository;
+
     private static final String BASE_URL = "/users";
 
     @Test
@@ -49,11 +53,11 @@ class UserRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.email").value("new.user@example.com"))
                 .andExpect(jsonPath("$.fullName").value("New User"));
 
-        // Additional assertion: verify it's persisted
         String json = response.andReturn().getResponse().getContentAsString();
         UserDto dto = objectMapper.readValue(json, UserDto.class);
 
-        assertThat(dto.id()).isNotNull();
+        assertThat(userRepository.findById(dto.id()))
+                .hasValueSatisfying(user -> assertThat(user.getEmail()).isEqualTo("new.user@example.com"));
     }
 
     @Test

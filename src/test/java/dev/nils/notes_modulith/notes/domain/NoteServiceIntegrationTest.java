@@ -5,8 +5,10 @@ import dev.nils.notes_modulith.notes.domain.model.Note;
 import dev.nils.notes_modulith.notes.exception.NoteException;
 import dev.nils.notes_modulith.notes.web.NoteCreateRequest;
 import dev.nils.notes_modulith.notes.web.NoteDto;
+import dev.nils.notes_modulith.notes.web.NoteUpdateRequest;
 import dev.nils.notes_modulith.users.domain.User;
 import dev.nils.notes_modulith.users.domain.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ class NoteServiceIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    EntityManager entityManager;
 
     @Test
     @DisplayName("findAll() should return notes from data.sql")
@@ -90,6 +95,22 @@ class NoteServiceIntegrationTest {
 
         Optional<Note> persisted = noteRepository.findById(saved.id());
         assertThat(persisted).isPresent();
+    }
+
+    @Test
+    @DisplayName("update() should return the persisted updatedAt and keep fields that are not sent")
+    void update_shouldReturnPersistedState() {
+        Note existing = noteRepository.findAll().stream().findFirst().orElseThrow();
+        String originalContent = existing.getContent();
+
+        NoteDto updated = noteService.update(existing.getId(), new NoteUpdateRequest("Updated title", null));
+        entityManager.flush();
+        entityManager.clear();
+
+        Note persisted = noteRepository.findById(existing.getId()).orElseThrow();
+        assertThat(updated.title()).isEqualTo("Updated title").isEqualTo(persisted.getTitle());
+        assertThat(updated.content()).isEqualTo(originalContent);
+        assertThat(updated.updatedAt()).isEqualTo(persisted.getUpdatedAt()).isAfter(updated.createdAt());
     }
 
     @Test

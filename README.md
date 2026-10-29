@@ -10,9 +10,9 @@ You can visit [my Medium post](https://senoritadeveloper.medium.com/modular-mono
 
 • Domain events: publishing `NoteCreatedEvent` to Spring Modulith’s event bus with AMQP integration (RabbitMQ) and JDBC event publication log.
 
-• Clear module boundaries: `users`, `notes`, `notifications`, `config`, `common`.
+• Clear module boundaries: `users`, `notes`, `notifications`, `common`.
 
-• Production‑ready extras: Actuator, structured logging, integration/unit tests, Testcontainers support.
+• Extras: Flyway schema migrations, Bean Validation with `ProblemDetail` errors, Actuator (`health`, `info`, `modulith`), unit/integration tests with Testcontainers.
 
 # Installation
 The easiest way to run dependencies is with Docker (PostgreSQL + RabbitMQ).
@@ -50,7 +50,8 @@ Key libraries/modules:
 - Spring AMQP (RabbitMQ)
 - MapStruct for DTO mapping
 - Lombok
-- Testing: JUnit 5, Mockito, Spring Boot Test, Testcontainers
+- Flyway (PostgreSQL)
+- Testing: JUnit 6, Mockito, Spring Boot Test, Testcontainers
 
 # Configuration
 Relevant application settings are in `src/main/resources/application.properties`:
@@ -58,6 +59,7 @@ Relevant application settings are in `src/main/resources/application.properties`
 - Database: `spring.datasource.url=jdbc:postgresql://localhost:5432/postgres`
 - RabbitMQ: `spring.rabbitmq.*` pointing at localhost defaults
 - Modulith events: JDBC publication log under schema `events`
+- Schema: Flyway migrations in `db/migration`; demo users/notes are inserted once from `db/sample-data` (remove that entry from `spring.flyway.locations` to start empty)
 
 # Usage
 Base URL: `http://localhost:8081/api`
@@ -72,7 +74,7 @@ Users
 # Create user
 curl -X POST http://localhost:8081/api/users \
   -H 'Content-Type: application/json' \
-  -d '{"name":"Richard"}'
+  -d '{"email":"richard@example.com","fullName":"Richard"}'
 
 # List users
 curl http://localhost:8081/api/users
@@ -83,7 +85,7 @@ Notes
 # Create note (publishes NoteCreatedEvent)
 curl -X POST http://localhost:8081/api/notes \
   -H 'Content-Type: application/json' \
-  -d '{"title":"First","content":"Hello Modulith"}'
+  -d '{"userId":1,"title":"First","content":"Hello Modulith"}'
 
 # List notes
 curl http://localhost:8081/api/notes
@@ -99,6 +101,8 @@ curl -X PUT http://localhost:8081/api/notes/1 \
 # Delete
 curl -X DELETE http://localhost:8081/api/notes/1
 ```
+
+Errors are returned as RFC 9457 `ProblemDetail` JSON: invalid requests return 400, a missing note returns 404, and creating a note for an unknown user returns 400.
 
 Also available in http_requests.http
 
